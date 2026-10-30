@@ -487,6 +487,11 @@ function renderMap(submissions) {
                     ${distDetails}
                     <div style="margin-top: 4px;">ค่าน้ำมัน (${modeLabel}): <b style="color: ${isOver ? '#dc2626' : '#16a34a'}; font-size: 13px;">${s.active_cost} บาท</b></div>
                     <div>สถานะ: <b>${isOver ? '⚠️ เกินเกณฑ์สวัสดิการ' : '✓ ปกติ'}</b></div>
+                    <div style="margin-top: 6px; padding-top: 4px; border-top: 1px dashed #cbd5e1;">
+                        <a href="https://www.google.com/maps?q=${s.home_latitude},${s.home_longitude}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 500;">
+                            📍 เปิดจุดพิกัดใน Google Maps ↗
+                        </a>
+                    </div>
                 </div>
             </div>
         `;
@@ -524,6 +529,11 @@ function renderTable(submissions) {
                <div class="text-[10px] text-slate-400 font-normal">ไป ${s.distance_inbound} / กลับ ${s.distance_outbound}</div>`
             : `<div class="font-bold text-blue-600">${s.distance_inbound}</div>`;
 
+        // Direct Google Maps pin URL with exact coordinates
+        const googleMapsUrl = (s.home_latitude && s.home_longitude)
+            ? `https://www.google.com/maps?q=${s.home_latitude},${s.home_longitude}`
+            : (s.map_url && s.map_url.startsWith('http') ? s.map_url : `https://www.google.com/maps?q=${encodeURIComponent(s.map_url || '')}`);
+
         return `
             <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isOver ? 'bg-red-50/20' : ''}">
                 <td class="py-3 px-4 font-mono font-medium text-slate-700">${s.employee_id}</td>
@@ -540,8 +550,10 @@ function renderTable(submissions) {
                     </span>
                 </td>
                 <td class="py-3 px-4 text-center">
-                    <a href="${s.map_url}" target="_blank" class="text-blue-600 hover:text-blue-800 underline text-[11px]" title="เปิดแผนที่">
-                        พิกัด ↗
+                    <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" 
+                       class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-[11px] font-medium bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition" 
+                       title="เปิดดูจุดพิกัดใน Google Maps (แท็บใหม่)">
+                        📍 พิกัด ↗
                     </a>
                 </td>
                 <td class="py-3 px-4 text-center">

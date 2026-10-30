@@ -273,7 +273,22 @@ function createApp(db) {
         }
     });
 
-    // 7. Export Excel
+    // 7. Delete submission
+    app.delete('/api/submissions/:id', requireAuth, (req, res) => {
+        try {
+            const { id } = req.params;
+            const sub = db.get('SELECT * FROM submissions WHERE id = ? OR employee_id = ? OR vehicle_no = ?', [id, id, id]);
+            if (!sub) {
+                return res.status(404).json({ error: 'ไม่พบข้อมูลที่ต้องการลบ' });
+            }
+            db.run('DELETE FROM submissions WHERE id = ?', [sub.id]);
+            res.json({ success: true, message: `ลบข้อมูลรถ ${sub.vehicle_no} (${sub.name}) เรียบร้อยแล้ว` });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+
+    // 8. Export Excel
     app.get('/api/export', requireAuth, async (req, res) => {
         try {
             const settings = getSettings();

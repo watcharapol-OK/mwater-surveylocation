@@ -100,6 +100,20 @@ function initControls() {
 
     document.getElementById('btnExportExcel').addEventListener('click', exportExcel);
 
+    const btnDel = document.getElementById('btnConfirmDelete');
+    if (btnDel) {
+        btnDel.addEventListener('click', () => {
+            const select = document.getElementById('selectDeleteVehicle');
+            const id = select.value;
+            if (!id) {
+                alert('กรุณาเลือกเบอร์รถที่ต้องการลบก่อนครับ');
+                return;
+            }
+            const label = select.options[select.selectedIndex].text;
+            deleteSubmission(id, label);
+        });
+    }
+
     initVehicleMultiSelect();
 }
 
@@ -312,9 +326,45 @@ async function refreshData(updateVehicleList = false) {
             renderVehicleCheckboxes();
         }
 
+        updateDeleteDropdown();
         applyVehicleFilter();
     } catch (err) {
         console.error('Error refreshing dashboard:', err);
+    }
+}
+
+function updateDeleteDropdown() {
+    const select = document.getElementById('selectDeleteVehicle');
+    if (!select) return;
+    select.innerHTML = '<option value="">-- เลือกเบอร์รถที่ต้องการลบออกจากระบบ --</option>';
+    for (const s of allSubmissions) {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = `${s.vehicle_no} - ${s.name} (${s.branch_name})`;
+        select.appendChild(opt);
+    }
+}
+
+async function deleteSubmission(id, vehicleLabel, name) {
+    const desc = name ? `${vehicleLabel} (${name})` : vehicleLabel;
+    if (!confirm(`⚠️ ยืนยันการลบข้อมูลของ:\n"${desc}"\n\nเมื่อลบแล้ว ข้อมูลระยะทางและค่าน้ำมันจะถูกถอนออกจากระบบทันที ยืนยันหรือไม่?`)) {
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/submissions/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) {
+            alert(`✓ ${data.message || 'ลบข้อมูลเรียบร้อยแล้ว'}`);
+            refreshData(true);
+        } else {
+            alert(`เกิดข้อผิดพลาด: ${data.error || 'ไม่สามารถลบข้อมูลได้'}`);
+        }
+    } catch (err) {
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err.message);
     }
 }
 
@@ -439,6 +489,13 @@ function renderTable(submissions) {
                     <a href="${s.map_url}" target="_blank" class="text-blue-600 hover:text-blue-800 underline text-[11px]" title="เปิดแผนที่">
                         พิกัด ↗
                     </a>
+                </td>
+                <td class="py-3 px-4 text-center">
+                    <button type="button" onclick="deleteSubmission('${s.id}', '${s.vehicle_no}', '${s.name}')"
+                            class="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition text-xs flex items-center justify-center mx-auto gap-0.5" title="ลบข้อมูลรถคันนี้">
+                        <span>🗑️</span>
+                        <span class="text-[10px]">ลบ</span>
+                    </button>
                 </td>
             </tr>
         `;

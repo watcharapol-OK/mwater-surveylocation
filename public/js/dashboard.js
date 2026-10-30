@@ -133,30 +133,33 @@ function initMapFullscreen() {
         isMapFullscreen = forceState !== undefined ? forceState : !isMapFullscreen;
 
         if (isMapFullscreen) {
-            container.classList.add('fixed', 'inset-0', 'z-[3000]', 'w-screen', 'h-screen', 'p-4', 'bg-white', 'flex', 'flex-col', 'rounded-none', 'border-0');
-            container.classList.remove('rounded-2xl', 'p-5', 'border');
-            frame.classList.remove('h-[420px]');
-            frame.classList.add('flex-1', 'h-full');
+            container.classList.add('map-fullscreen-active');
+            frame.classList.add('map-frame-fullscreen');
             
-            if (icon) icon.textContent = '🗗';
+            if (icon) icon.textContent = '✖';
             if (text) text.textContent = 'ย่อขนาดเท่าเดิม (Esc)';
-            btn.className = 'text-xs bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-3 py-1.5 rounded-xl border border-red-200 transition flex items-center gap-1.5 shadow-sm';
+            btn.className = 'text-xs bg-red-600 hover:bg-red-700 text-white font-semibold px-3.5 py-1.5 rounded-xl shadow-lg transition flex items-center gap-1.5 cursor-pointer';
             document.body.style.overflow = 'hidden';
         } else {
-            container.classList.remove('fixed', 'inset-0', 'z-[3000]', 'w-screen', 'h-screen', 'p-4', 'bg-white', 'flex', 'flex-col', 'rounded-none', 'border-0');
-            container.classList.add('rounded-2xl', 'p-5', 'border');
-            frame.classList.remove('flex-1', 'h-full');
-            frame.classList.add('h-[420px]');
+            container.classList.remove('map-fullscreen-active');
+            frame.classList.remove('map-frame-fullscreen');
 
             if (icon) icon.textContent = '⛶';
             if (text) text.textContent = 'ขยายเต็มจอ';
-            btn.className = 'text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium px-3 py-1.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-sm';
+            btn.className = 'text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium px-3 py-1.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-sm cursor-pointer';
             document.body.style.overflow = '';
         }
 
         setTimeout(() => {
-            if (map) map.invalidateSize();
+            if (map) {
+                map.invalidateSize();
+            }
         }, 150);
+        setTimeout(() => {
+            if (map) {
+                map.invalidateSize();
+            }
+        }, 400);
     }
 
     btn.addEventListener('click', () => toggleFullscreen());

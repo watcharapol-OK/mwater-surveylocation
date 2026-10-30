@@ -115,6 +115,57 @@ function initControls() {
     }
 
     initVehicleMultiSelect();
+    initMapFullscreen();
+}
+
+let isMapFullscreen = false;
+
+function initMapFullscreen() {
+    const btn = document.getElementById('btnToggleMapFullscreen');
+    const container = document.getElementById('mapSectionContainer');
+    const frame = document.getElementById('mapFrameWrapper');
+    const icon = document.getElementById('iconFullscreen');
+    const text = document.getElementById('textFullscreen');
+
+    if (!btn || !container || !frame) return;
+
+    function toggleFullscreen(forceState) {
+        isMapFullscreen = forceState !== undefined ? forceState : !isMapFullscreen;
+
+        if (isMapFullscreen) {
+            container.classList.add('fixed', 'inset-0', 'z-[3000]', 'w-screen', 'h-screen', 'p-4', 'bg-white', 'flex', 'flex-col', 'rounded-none', 'border-0');
+            container.classList.remove('rounded-2xl', 'p-5', 'border');
+            frame.classList.remove('h-[420px]');
+            frame.classList.add('flex-1', 'h-full');
+            
+            if (icon) icon.textContent = '🗗';
+            if (text) text.textContent = 'ย่อขนาดเท่าเดิม (Esc)';
+            btn.className = 'text-xs bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-3 py-1.5 rounded-xl border border-red-200 transition flex items-center gap-1.5 shadow-sm';
+            document.body.style.overflow = 'hidden';
+        } else {
+            container.classList.remove('fixed', 'inset-0', 'z-[3000]', 'w-screen', 'h-screen', 'p-4', 'bg-white', 'flex', 'flex-col', 'rounded-none', 'border-0');
+            container.classList.add('rounded-2xl', 'p-5', 'border');
+            frame.classList.remove('flex-1', 'h-full');
+            frame.classList.add('h-[420px]');
+
+            if (icon) icon.textContent = '⛶';
+            if (text) text.textContent = 'ขยายเต็มจอ';
+            btn.className = 'text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 text-slate-700 font-medium px-3 py-1.5 rounded-xl border border-slate-200 transition flex items-center gap-1.5 shadow-sm';
+            document.body.style.overflow = '';
+        }
+
+        setTimeout(() => {
+            if (map) map.invalidateSize();
+        }, 150);
+    }
+
+    btn.addEventListener('click', () => toggleFullscreen());
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isMapFullscreen) {
+            toggleFullscreen(false);
+        }
+    });
 }
 
 function initVehicleMultiSelect() {

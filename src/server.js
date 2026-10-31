@@ -9,6 +9,11 @@ const {
     calculateBothDirectionsKm,
     calculateFuelCost
 } = require('./geo_utils');
+const {
+    syncFromGoogleSheets,
+    pushToGoogleSheets,
+    deleteFromGoogleSheets
+} = require('./sheets_sync');
 
 // In-memory valid manager tokens
 const managerTokens = new Set();
@@ -125,6 +130,13 @@ function createApp(db) {
             ]);
 
             const saved = db.get('SELECT * FROM submissions WHERE employee_id = ?', [employee_id.trim()]);
+
+            // Sync with Google Sheets in background if configured
+            pushToGoogleSheets({
+                ...saved,
+                branch_name: branch.name
+            }).catch(err => console.error('[GoogleSheets] Submit sync error:', err.message));
+
             res.json({
                 success: true,
                 message: 'บันทึกข้อมูลเรียบร้อยแล้ว',
@@ -185,8 +197,11 @@ function createApp(db) {
     });
 
     // 6. Submissions with dynamic calculations
-    app.get('/api/submissions', requireAuth, (req, res) => {
+    app.get('/api/submissions', requireAuth, async (req, res) => {
         try {
+            // Sync from Google Sheets if configured (throttled to at most once a minute)
+            await syncFromGoogleSheets(db);
+
             const settings = getSettings();
             const mode = req.query.mode === 'round-trip' ? 'round-trip' : 'one-way';
             const dieselPrice = req.query.diesel_price ? parseFloat(req.query.diesel_price) : settings.diesel_price;
@@ -274,7 +289,7 @@ function createApp(db) {
     });
 
     // 7. Delete submission
-    app.delete('/api/submissions/:id', requireAuth, (req, res) => {
+    app.delete('/api/submissions/:id', requireAuth, async (req, res) => {
         try {
             const { id } = req.params;
             const sub = db.get('SELECT * FROM submissions WHERE id = ? OR employee_id = ? OR vehicle_no = ?', [id, id, id]);
@@ -282,7 +297,21 @@ function createApp(db) {
                 return res.status(404).json({ error: 'ไม่พบข้อมูลที่ต้องการลบ' });
             }
             db.run('DELETE FROM submissions WHERE id = ?', [sub.id]);
+
+            // Sync deletion with Google Sheets
+            deleteFromGoogleSheets(sub.employee_id).catch(err => console.error('[GoogleSheets] Delete sync error:', err.message));
+
             res.json({ success: true, message: `ลบข้อมูลรถ ${sub.vehicle_no} (${sub.name}) เรียบร้อยแล้ว` });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+
+    // 7.1 Manual Sync with Google Sheets
+    app.post('/api/sync-sheets', requireAuth, async (req, res) => {
+        try {
+            const success = await syncFromGoogleSheets(db, true);
+            res.json({ success: true, message: success ? 'ซิงค์ข้อมูลกับ Google Sheets เรียบร้อยแล้ว' : 'ไม่ได้เปิดใช้งาน Google Sheets หรือไม่มีการเปลี่ยนแปลง' });
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
@@ -407,6 +436,8 @@ if (require.main === module) {
 
     initDb(dbPath).then(async db => {
         await seedBranches(db, kmlPath);
+        // Initial sync from Google Sheets if configured
+        await syncFromGoogleSheets(db, true);
         const app = createApp(db);
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`=================================================`);

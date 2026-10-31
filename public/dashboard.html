@@ -142,6 +142,16 @@
                         </div>
                     </div>
 
+                    <!-- Status Filter (All vs Over-Threshold vs Normal) -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold text-slate-600 whitespace-nowrap">🚦 สถานะ:</span>
+                        <select id="filterStatus" class="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm cursor-pointer">
+                            <option value="all">-- แสดงทั้งหมด --</option>
+                            <option value="over">⚠️ เฉพาะเกินเกณฑ์</option>
+                            <option value="normal">✓ ปกติ (ไม่เกินเกณฑ์)</option>
+                        </select>
+                    </div>
+
                     <!-- Mode Toggle (One-way vs Round-trip) -->
                     <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-medium">
                         <button type="button" id="btnModeOneWay" class="px-3 py-1.5 rounded-lg transition text-slate-600">
@@ -317,6 +327,7 @@
                             <th class="py-3 px-4">ชื่อ - นามสกุล</th>
                             <th class="py-3 px-4">เบอร์รถ</th>
                             <th class="py-3 px-4">สาขาที่วิ่งงาน</th>
+                            <th class="py-3 px-4">ที่อยู่ปัจจุบัน</th>
                             <th class="py-3 px-4 text-right">ระยะทาง (กม.)</th>
                             <th class="py-3 px-4 text-right">ค่าน้ำมันคำนวณได้</th>
                             <th class="py-3 px-4 text-center">สถานะ</th>
@@ -326,7 +337,7 @@
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-slate-100">
                         <tr>
-                            <td colspan="9" class="text-center py-8 text-slate-400">กำลังโหลดข้อมูล...</td>
+                            <td colspan="10" class="text-center py-8 text-slate-400">กำลังโหลดข้อมูล...</td>
                         </tr>
                     </tbody>
                 </table>

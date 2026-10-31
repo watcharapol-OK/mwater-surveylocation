@@ -1,6 +1,5 @@
 // ==============================================================
-// Google Apps Script สำหรับเชื่อมต่อ MWater Survey System
-// วิธีใช้งาน: นำโค้ดนี้ไปวางใน Extensions (ส่วนขยาย) > Apps Script บน Google Sheet
+// Google Apps Script สำหรับเชื่อมต่อ MWater Survey System (เวอร์ชันรองรับที่อยู่เต็ม)
 // ==============================================================
 
 function doGet(e) {
@@ -17,7 +16,7 @@ function doGet(e) {
     var rows = [];
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
-      if (!row[0] && !row[1]) continue; // ข้ามแถวว่าง
+      if (!row[0] && !row[1]) continue;
       var obj = {};
       for (var j = 0; j < headers.length; j++) {
         var key = String(headers[j]).trim();
@@ -41,15 +40,24 @@ function doPost(e) {
     var payload = JSON.parse(e.postData.contents);
     var action = payload.action;
 
-    // สร้าง Header อัตโนมัติหากเป็นชีตว่าง
+    var standardHeaders = [
+      'employee_id', 'name', 'vehicle_no', 'branch_id', 'branch_name',
+      'address_detail', 'subdistrict', 'district', 'province', 'postal_code', 'full_address',
+      'map_url', 'home_latitude', 'home_longitude', 'distance_km',
+      'distance_return_km', 'distance_round_trip_km', 'created_at', 'updated_at'
+    ];
+
+    // สร้างหรืออัปเดต Header อัตโนมัติหากยังไม่มีคอลัมน์ที่อยู่
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'employee_id', 'name', 'vehicle_no', 'branch_id', 'branch_name',
-        'address_detail', 'subdistrict', 'district', 'province', 'postal_code', 'full_address',
-        'map_url', 'home_latitude', 'home_longitude', 'distance_km',
-        'distance_return_km', 'distance_round_trip_km', 'created_at', 'updated_at'
-      ]);
-      sheet.getRange(1, 1, 1, 19).setFontWeight('bold').setBackground('#e2e8f0');
+      sheet.appendRow(standardHeaders);
+      sheet.getRange(1, 1, 1, standardHeaders.length).setFontWeight('bold').setBackground('#e2e8f0');
+    } else {
+      var existingHeaders = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+      if (existingHeaders.indexOf('full_address') === -1) {
+        // อัปเกรด Header แถวที่ 1 ให้มีคอลัมน์ที่อยู่ครบถ้วน
+        sheet.getRange(1, 1, 1, standardHeaders.length).setValues([standardHeaders]);
+        sheet.getRange(1, 1, 1, standardHeaders.length).setFontWeight('bold').setBackground('#e2e8f0');
+      }
     }
 
     // 1. บันทึกหรืออัปเดตข้อมูลพนักงาน
@@ -65,27 +73,18 @@ function doPost(e) {
         }
       }
 
-      var rowValues = [
-        payload.employee_id || '',
-        payload.name || '',
-        payload.vehicle_no || '',
-        payload.branch_id || '',
-        payload.branch_name || '',
-        payload.address_detail || '',
-        payload.subdistrict || '',
-        payload.district || '',
-        payload.province || '',
-        payload.postal_code || '',
-        payload.full_address || '',
-        payload.map_url || '',
-        payload.home_latitude || '',
-        payload.home_longitude || '',
-        payload.distance_km || '',
-        payload.distance_return_km || '',
-        payload.distance_round_trip_km || '',
-        payload.created_at || new Date().toISOString(),
-        new Date().toISOString()
-      ];
+      var currentHeaders = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+      var rowValues = [];
+      for (var c = 0; c < currentHeaders.length; c++) {
+        var col = String(currentHeaders[c]).trim();
+        if (col === 'updated_at') {
+          rowValues.push(new Date().toISOString());
+        } else if (payload[col] !== undefined && payload[col] !== null) {
+          rowValues.push(payload[col]);
+        } else {
+          rowValues.push('');
+        }
+      }
 
       if (foundRow > 0) {
         sheet.getRange(foundRow, 1, 1, rowValues.length).setValues([rowValues]);

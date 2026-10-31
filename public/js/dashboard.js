@@ -93,6 +93,11 @@ function initControls() {
         refreshData(true);
     });
 
+    const filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) {
+        filterStatus.addEventListener('change', () => applyVehicleFilter());
+    }
+
     document.getElementById('inputDieselPrice').addEventListener('input', () => refreshData(false));
     document.getElementById('inputConsumption').addEventListener('input', () => refreshData(false));
     document.getElementById('inputThreshold').addEventListener('input', () => refreshData(false));
@@ -279,8 +284,15 @@ function applyVehicleFilter() {
         label.className = 'truncate font-semibold text-blue-600';
     }
 
-    // Filter submissions by selected vehicles
-    const displayedSubmissions = allSubmissions.filter(s => selectedVehicles.has(s.vehicle_no));
+    // Filter submissions by selected vehicles and status
+    const statusFilter = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : 'all';
+
+    let displayedSubmissions = allSubmissions.filter(s => selectedVehicles.has(s.vehicle_no));
+    if (statusFilter === 'over') {
+        displayedSubmissions = displayedSubmissions.filter(s => s.is_over_threshold);
+    } else if (statusFilter === 'normal') {
+        displayedSubmissions = displayedSubmissions.filter(s => !s.is_over_threshold);
+    }
 
     // Dynamic stats recalculation
     const threshold = parseFloat(document.getElementById('inputThreshold').value) || 200.0;
@@ -518,7 +530,7 @@ function renderMap(submissions) {
 function renderTable(submissions) {
     const tbody = document.getElementById('tableBody');
     if (submissions.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">ไม่มีข้อมูลตามเงื่อนไขที่เลือก (อาจถูกตัดออกจากการเลือกเบอร์รถ)</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400">ไม่มีข้อมูลตามเงื่อนไขที่เลือก (อาจถูกตัดออกจากการเลือกเบอร์รถหรือตัวกรองสถานะ)</td></tr>`;
         return;
     }
 
@@ -535,15 +547,17 @@ function renderTable(submissions) {
             ? `https://www.google.com/maps?q=${s.home_latitude},${s.home_longitude}`
             : (s.map_url && s.map_url.startsWith('http') ? s.map_url : `https://www.google.com/maps?q=${encodeURIComponent(s.map_url || '')}`);
 
+        const addressDisplay = s.full_address 
+            ? `<div class="max-w-[220px] truncate text-slate-700 font-medium" title="${s.full_address}">🏠 ${s.full_address}</div>`
+            : (s.address_detail ? `<div class="max-w-[220px] truncate text-slate-600" title="${s.address_detail}">🏠 ${s.address_detail}</div>` : `<span class="text-slate-300">-</span>`);
+
         return `
             <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isOver ? 'bg-red-50/20' : ''}">
                 <td class="py-3 px-4 font-mono font-medium text-slate-700">${s.employee_id}</td>
-                <td class="py-3 px-4 font-medium text-slate-800">
-                    <div>${s.name}</div>
-                    ${s.full_address ? `<div class="text-[11px] text-slate-400 font-normal truncate max-w-[220px]" title="${s.full_address}">🏠 ${s.full_address}</div>` : ''}
-                </td>
+                <td class="py-3 px-4 font-medium text-slate-800">${s.name}</td>
                 <td class="py-3 px-4 font-semibold text-slate-700">${s.vehicle_no}</td>
                 <td class="py-3 px-4 text-slate-600">${s.branch_name}</td>
+                <td class="py-3 px-4 text-slate-600">${addressDisplay}</td>
                 <td class="py-3 px-4 text-right font-mono font-semibold">${distDisplay}</td>
                 <td class="py-3 px-4 text-right font-mono font-bold ${isOver ? 'text-red-600' : 'text-emerald-600'}">
                     ${s.active_cost} <span class="text-[10px] text-slate-400 font-normal">บ. (${modeLabel})</span>

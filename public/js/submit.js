@@ -132,6 +132,116 @@ function initEventListeners() {
     // Form submission
     const form = document.getElementById('driverForm');
     form.addEventListener('submit', handleFormSubmit);
+
+    initAddressLookup();
+}
+
+function initAddressLookup() {
+    const inputPostal = document.getElementById('postal_code');
+    const selectSubdistrict = document.getElementById('subdistrict');
+    const inputDistrict = document.getElementById('district');
+    const inputProvince = document.getElementById('province');
+    const inputDetail = document.getElementById('address_detail');
+    const previewBox = document.getElementById('fullAddressPreview');
+    const previewText = document.getElementById('fullAddressText');
+    const spinner = document.getElementById('postalCodeSpinner');
+
+    if (!inputPostal || !selectSubdistrict) return;
+
+    let currentLocations = [];
+
+    function updateAddressPreview() {
+        const detail = (inputDetail.value || '').trim();
+        const sub = selectSubdistrict.value;
+        const dist = inputDistrict.value;
+        const prov = inputProvince.value;
+        const zip = inputPostal.value.trim();
+
+        if (!detail && !sub) {
+            previewBox.classList.add('hidden');
+            return;
+        }
+
+        const parts = [];
+        if (detail) parts.push(detail);
+        if (sub) parts.push(prov === 'กรุงเทพมหานคร' ? `แขวง${sub.replace(/^(แขวง|ต\.|ตำบล)/, '')}` : `ต.${sub.replace(/^(แขวง|ต\.|ตำบล)/, '')}`);
+        if (dist) parts.push(prov === 'กรุงเทพมหานคร' ? `เขต${dist.replace(/^(เขต|อ\.|อำเภอ)/, '')}` : `อ.${dist.replace(/^(เขต|อ\.|อำเภอ)/, '')}`);
+        if (prov) parts.push(prov.startsWith('จ.') || prov === 'กรุงเทพมหานคร' ? prov : `จ.${prov}`);
+        if (zip) parts.push(zip);
+
+        previewText.textContent = parts.join(' ');
+        previewBox.classList.remove('hidden');
+    }
+
+    inputDetail.addEventListener('input', updateAddressPreview);
+
+    inputPostal.addEventListener('input', async () => {
+        inputPostal.value = inputPostal.value.replace(/\D/g, '');
+        const zip = inputPostal.value.trim();
+
+        if (zip.length < 5) {
+            selectSubdistrict.innerHTML = '<option value="">-- กรอกรหัสไปรษณีย์ 5 หลักก่อน --</option>';
+            selectSubdistrict.disabled = true;
+            selectSubdistrict.className = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm bg-slate-50 text-slate-500 appearance-none disabled:cursor-not-allowed';
+            inputDistrict.value = '';
+            inputProvince.value = '';
+            updateAddressPreview();
+            return;
+        }
+
+        if (zip.length === 5) {
+            if (spinner) spinner.classList.remove('hidden');
+            try {
+                const res = await fetch(`/api/zipcode/${zip}`);
+                const data = await res.json();
+                if (spinner) spinner.classList.add('hidden');
+
+                if (data.found && data.locations.length > 0) {
+                    currentLocations = data.locations;
+                    
+                    selectSubdistrict.disabled = false;
+                    selectSubdistrict.className = 'w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm bg-white text-slate-800 appearance-none';
+
+                    if (currentLocations.length === 1) {
+                        const loc = currentLocations[0];
+                        selectSubdistrict.innerHTML = `<option value="${loc.s}" selected>${loc.s}</option>`;
+                        inputDistrict.value = loc.d;
+                        inputProvince.value = loc.p;
+                    } else {
+                        selectSubdistrict.innerHTML = '<option value="">-- เลือกตำบล/แขวง --</option>' + 
+                            currentLocations.map((loc, idx) => `<option value="${loc.s}" data-idx="${idx}">${loc.s} (${loc.d})</option>`).join('');
+                        inputDistrict.value = currentLocations[0].d;
+                        inputProvince.value = currentLocations[0].p;
+                    }
+                    updateAddressPreview();
+                } else {
+                    selectSubdistrict.innerHTML = '<option value="">-- ไม่พบรหัสไปรษณีย์นี้ --</option>';
+                    selectSubdistrict.disabled = true;
+                    inputDistrict.value = '';
+                    inputProvince.value = '';
+                    updateAddressPreview();
+                }
+            } catch (err) {
+                if (spinner) spinner.classList.add('hidden');
+                console.error('Zipcode lookup error:', err);
+            }
+        }
+    });
+
+    selectSubdistrict.addEventListener('change', () => {
+        const selectedSub = selectSubdistrict.value;
+        if (!selectedSub) {
+            updateAddressPreview();
+            return;
+        }
+
+        const match = currentLocations.find(l => l.s === selectedSub);
+        if (match) {
+            inputDistrict.value = match.d;
+            inputProvince.value = match.p;
+        }
+        updateAddressPreview();
+    });
 }
 
 async function checkCoordinates(quiet = false) {
@@ -210,9 +320,14 @@ async function handleFormSubmit(e) {
     const vehicle_no = document.getElementById('vehicle_no').value.trim();
     const branch_id = document.getElementById('branch_id').value;
     const map_url = document.getElementById('map_url').value.trim();
+    const address_detail = document.getElementById('address_detail').value.trim();
+    const postal_code = document.getElementById('postal_code').value.trim();
+    const subdistrict = document.getElementById('subdistrict').value.trim();
+    const district = document.getElementById('district').value.trim();
+    const province = document.getElementById('province').value.trim();
 
-    if (!employee_id || !name || !vehicle_no || !branch_id || !map_url) {
-        alert('กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง');
+    if (!employee_id || !name || !vehicle_no || !branch_id || !map_url || !address_detail || !postal_code || !subdistrict) {
+        alert('กรุณากรอกข้อมูลให้ครบถ้วนทุกช่อง (รวมถึงรายละเอียดที่พักและรหัสไปรษณีย์)');
         return;
     }
 
@@ -228,7 +343,18 @@ async function handleFormSubmit(e) {
         const res = await fetch('/api/submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ employee_id, name, vehicle_no, branch_id, map_url })
+            body: JSON.stringify({
+                employee_id,
+                name,
+                vehicle_no,
+                branch_id,
+                map_url,
+                address_detail,
+                postal_code,
+                subdistrict,
+                district,
+                province
+            })
         });
         const data = await res.json();
 

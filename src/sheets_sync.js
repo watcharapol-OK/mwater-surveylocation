@@ -35,8 +35,9 @@ async function syncFromGoogleSheets(db, force = false) {
             INSERT INTO submissions (
                 employee_id, name, vehicle_no, branch_id, map_url,
                 home_latitude, home_longitude, distance_km, distance_return_km,
-                distance_round_trip_km, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                distance_round_trip_km, address_detail, postal_code, subdistrict, district, province, full_address,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(employee_id) DO UPDATE SET
                 name = excluded.name,
                 vehicle_no = excluded.vehicle_no,
@@ -47,6 +48,12 @@ async function syncFromGoogleSheets(db, force = false) {
                 distance_km = excluded.distance_km,
                 distance_return_km = excluded.distance_return_km,
                 distance_round_trip_km = excluded.distance_round_trip_km,
+                address_detail = excluded.address_detail,
+                postal_code = excluded.postal_code,
+                subdistrict = excluded.subdistrict,
+                district = excluded.district,
+                province = excluded.province,
+                full_address = excluded.full_address,
                 updated_at = excluded.updated_at
         `);
 
@@ -66,6 +73,12 @@ async function syncFromGoogleSheets(db, force = false) {
                 parseFloat(row.distance_km) || 0,
                 row.distance_return_km != null ? parseFloat(row.distance_return_km) : null,
                 row.distance_round_trip_km != null ? parseFloat(row.distance_round_trip_km) : null,
+                String(row.address_detail || '').trim(),
+                String(row.postal_code || '').trim(),
+                String(row.subdistrict || '').trim(),
+                String(row.district || '').trim(),
+                String(row.province || '').trim(),
+                String(row.full_address || '').trim(),
                 row.created_at || new Date().toISOString(),
                 row.updated_at || new Date().toISOString()
             );
@@ -123,6 +136,12 @@ async function pushToGoogleSheets(data) {
             distance_km: data.distance_km,
             distance_return_km: data.distance_return_km,
             distance_round_trip_km: data.distance_round_trip_km,
+            address_detail: data.address_detail || '',
+            postal_code: data.postal_code || '',
+            subdistrict: data.subdistrict || '',
+            district: data.district || '',
+            province: data.province || '',
+            full_address: data.full_address || '',
             created_at: data.created_at || new Date().toISOString(),
             updated_at: data.updated_at || new Date().toISOString()
         };

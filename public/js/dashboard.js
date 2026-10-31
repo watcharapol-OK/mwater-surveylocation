@@ -483,6 +483,7 @@ function renderMap(submissions) {
                 <b style="font-size: 13px;">${s.name}</b> (${s.employee_id})<br>
                 <span>เบอร์รถ: <b>${s.vehicle_no}</b></span><br>
                 <span>สาขาประจำ: <b>${s.branch_name}</b></span><br>
+                ${s.full_address ? `<div style="font-size: 11px; color: #475569; margin-top: 2px;">🏠 ${s.full_address}</div>` : ''}
                 <div style="margin-top: 6px; padding: 4px 6px; background-color: #f8fafc; border-radius: 6px;">
                     ${distDetails}
                     <div style="margin-top: 4px;">ค่าน้ำมัน (${modeLabel}): <b style="color: ${isOver ? '#dc2626' : '#16a34a'}; font-size: 13px;">${s.active_cost} บาท</b></div>
@@ -537,7 +538,10 @@ function renderTable(submissions) {
         return `
             <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isOver ? 'bg-red-50/20' : ''}">
                 <td class="py-3 px-4 font-mono font-medium text-slate-700">${s.employee_id}</td>
-                <td class="py-3 px-4 font-medium text-slate-800">${s.name}</td>
+                <td class="py-3 px-4 font-medium text-slate-800">
+                    <div>${s.name}</div>
+                    ${s.full_address ? `<div class="text-[11px] text-slate-400 font-normal truncate max-w-[220px]" title="${s.full_address}">🏠 ${s.full_address}</div>` : ''}
+                </td>
                 <td class="py-3 px-4 font-semibold text-slate-700">${s.vehicle_no}</td>
                 <td class="py-3 px-4 text-slate-600">${s.branch_name}</td>
                 <td class="py-3 px-4 text-right font-mono font-semibold">${distDisplay}</td>

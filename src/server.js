@@ -3,6 +3,7 @@ const path = require('path');
 const crypto = require('crypto');
 const ExcelJS = require('exceljs');
 const { getDb, initDb, seedBranches } = require('./db');
+const fs = require('fs');
 const {
     resolveGoogleMapsUrl,
     calculateDistanceKm,
@@ -22,6 +23,49 @@ function createApp(db) {
     const app = express();
     app.use(express.json());
     app.use(express.static(path.join(__dirname, '..', 'public')));
+
+    // Load Thai zipcodes data
+    let thaiZipcodes = null;
+    try {
+        const rawZip = fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'thai_zipcodes.json'), 'utf8');
+        thaiZipcodes = JSON.parse(rawZip);
+    } catch (e) {
+        console.warn('[Zipcode] Could not load thai_zipcodes.json:', e.message);
+    }
+
+    // Zipcode lookup endpoint (with Flash Express dataset and live fallback)
+    app.get('/api/zipcode/:code', async (req, res) => {
+        const code = String(req.params.code).trim();
+        let locations = (thaiZipcodes && thaiZipcodes[code]) ? [...thaiZipcodes[code]] : [];
+
+        // If not found locally, query Flash Express Live API as fallback
+        if (locations.length === 0 && code.length === 5) {
+            try {
+                const flashRes = await fetch('https://www.flashexpress.co.th/webApi/zipcode/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ search: code })
+                });
+                const flashJson = await flashRes.json();
+                if (flashJson.data && Array.isArray(flashJson.data)) {
+                    for (const item of flashJson.data) {
+                        const words = item.text.split(' ').map(w => w.trim()).filter(Boolean);
+                        if (words.length >= 2) {
+                            locations.push({ s: '', d: words[0], p: words[1] });
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('[FlashExpress] Live lookup error:', err.message);
+            }
+        }
+
+        res.json({
+            zipcode: code,
+            found: locations.length > 0,
+            locations
+        });
+    });
 
     // Helper: get system settings as an object
     function getSettings() {
@@ -79,10 +123,27 @@ function createApp(db) {
     // 3. Submit accommodation (Driver)
     app.post('/api/submit', async (req, res) => {
         try {
-            const { employee_id, name, vehicle_no, branch_id, map_url } = req.body;
+            const { 
+                employee_id, name, vehicle_no, branch_id, map_url,
+                address_detail, postal_code, subdistrict, district, province
+            } = req.body;
             if (!employee_id || !name || !vehicle_no || !branch_id || !map_url) {
                 return res.status(400).json({ error: 'กรุณากรอกข้อมูลให้ครบทุกช่อง' });
             }
+
+            const addrDetail = (address_detail || '').trim();
+            const postCode = (postal_code || '').trim();
+            const subDist = (subdistrict || '').trim();
+            const dist = (district || '').trim();
+            const prov = (province || '').trim();
+
+            const fullAddressParts = [];
+            if (addrDetail) fullAddressParts.push(addrDetail);
+            if (subDist) fullAddressParts.push(prov === 'กรุงเทพมหานคร' ? `แขวง${subDist.replace(/^(แขวง|ต\.|ตำบล)/, '')}` : `ต.${subDist.replace(/^(แขวง|ต\.|ตำบล)/, '')}`);
+            if (dist) fullAddressParts.push(prov === 'กรุงเทพมหานคร' ? `เขต${dist.replace(/^(เขต|อ\.|อำเภอ)/, '')}` : `อ.${dist.replace(/^(เขต|อ\.|อำเภอ)/, '')}`);
+            if (prov) fullAddressParts.push(prov.startsWith('จ.') || prov === 'กรุงเทพมหานคร' ? prov : `จ.${prov}`);
+            if (postCode) fullAddressParts.push(postCode);
+            const full_address = fullAddressParts.join(' ');
 
             // Find branch
             const branch = db.get('SELECT * FROM branches WHERE id = ?', [branch_id]);
@@ -103,8 +164,10 @@ function createApp(db) {
             db.run(`
                 INSERT INTO submissions (
                     employee_id, name, vehicle_no, branch_id, map_url,
-                    home_latitude, home_longitude, distance_km, distance_return_km, distance_round_trip_km, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                    home_latitude, home_longitude, distance_km, distance_return_km, distance_round_trip_km,
+                    address_detail, postal_code, subdistrict, district, province, full_address,
+                    updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
                 ON CONFLICT(employee_id) DO UPDATE SET
                     name = excluded.name,
                     vehicle_no = excluded.vehicle_no,
@@ -115,6 +178,12 @@ function createApp(db) {
                     distance_km = excluded.distance_km,
                     distance_return_km = excluded.distance_return_km,
                     distance_round_trip_km = excluded.distance_round_trip_km,
+                    address_detail = excluded.address_detail,
+                    postal_code = excluded.postal_code,
+                    subdistrict = excluded.subdistrict,
+                    district = excluded.district,
+                    province = excluded.province,
+                    full_address = excluded.full_address,
                     updated_at = CURRENT_TIMESTAMP
             `, [
                 employee_id.trim(),
@@ -126,7 +195,13 @@ function createApp(db) {
                 coords.lng,
                 dirResult.inboundKm,
                 dirResult.outboundKm,
-                dirResult.roundTripKm
+                dirResult.roundTripKm,
+                addrDetail,
+                postCode,
+                subDist,
+                dist,
+                prov,
+                full_address
             ]);
 
             const saved = db.get('SELECT * FROM submissions WHERE employee_id = ?', [employee_id.trim()]);
@@ -365,6 +440,7 @@ function createApp(db) {
                 { header: 'ชื่อ-นามสกุล', key: 'name', width: 25 },
                 { header: 'เบอร์รถ', key: 'vehicle_no', width: 16 },
                 { header: 'สาขาที่วิ่งงาน', key: 'branch_name', width: 22 },
+                { header: 'ที่อยู่ปัจจุบัน', key: 'full_address', width: 35 },
                 { header: 'ระยะทางขาไป (กม.)', key: 'dist_inbound', width: 18 },
                 { header: 'ระยะทางขากลับ (กม.)', key: 'dist_outbound', width: 18 },
                 { header: 'ระยะทางไป-กลับจริง (กม.)', key: 'dist_round_trip', width: 22 },
@@ -402,6 +478,7 @@ function createApp(db) {
                     name: r.name,
                     vehicle_no: r.vehicle_no,
                     branch_name: r.branch_name,
+                    full_address: r.full_address || r.address_detail || '',
                     dist_inbound: inboundDist,
                     dist_outbound: outboundDist,
                     dist_round_trip: roundTripDist,

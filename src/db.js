@@ -67,6 +67,12 @@ class DbWrapper {
                 distance_km REAL NOT NULL,
                 distance_return_km REAL,
                 distance_round_trip_km REAL,
+                address_detail TEXT,
+                postal_code TEXT,
+                subdistrict TEXT,
+                district TEXT,
+                province TEXT,
+                full_address TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (branch_id) REFERENCES branches(id)
@@ -85,6 +91,12 @@ class DbWrapper {
         try {
             this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN distance_round_trip_km REAL;`);
         } catch (e) {}
+        try { this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN address_detail TEXT;`); } catch (e) {}
+        try { this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN postal_code TEXT;`); } catch (e) {}
+        try { this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN subdistrict TEXT;`); } catch (e) {}
+        try { this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN district TEXT;`); } catch (e) {}
+        try { this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN province TEXT;`); } catch (e) {}
+        try { this.rawDb.exec(`ALTER TABLE submissions ADD COLUMN full_address TEXT;`); } catch (e) {}
 
         // Set default system settings if not exists
         const defaults = [

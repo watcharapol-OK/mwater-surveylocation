@@ -1,0 +1,17 @@
+{
+  "name": "mwater-driver-survey",
+  "version": "1.0.0",
+  "description": "Driver Accommodation Survey and Travel Welfare Calculation System",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --experimental-sqlite src/server.js",
+    "test": "node test/db.test.js && node test/geo_utils.test.js && node test/api.test.js"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

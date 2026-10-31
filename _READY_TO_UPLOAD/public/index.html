@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>สำรวจที่พักปัจจุบัน - เพื่อพิจารณาสวัสดิการเดินทาง</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for mini preview -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 pb-12">
+
+    <!-- Top Navigation / Brand Header -->
+    <header class="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white shadow-md">
+        <div class="max-w-xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center font-bold text-xl shadow-inner">
+                    💧
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">ระบบสำรวจที่พักปัจจุบัน</h1>
+                    <p class="text-xs text-blue-100">โครงการพิจารณาสวัสดิการค่าน้ำมันช่วยเหลือ</p>
+                </div>
+            </div>
+            <a href="/dashboard.html" class="text-xs bg-white/15 hover:bg-white/25 px-2.5 py-1.5 rounded-lg border border-white/20 transition flex items-center gap-1">
+                <span>🔐</span>
+                <span>ผู้จัดการ</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-xl mx-auto px-4 mt-5">
+
+        <!-- Info Notice Card -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm mb-5 text-sm text-blue-900">
+            <div class="flex items-start gap-2.5">
+                <span class="text-lg">📢</span>
+                <div>
+                    <p class="font-semibold">เรียน พนักงานและผู้ประกอบการขนส่งทุกท่าน</p>
+                    <p class="text-xs text-blue-700 mt-1 leading-relaxed">
+                        โปรดกรอกข้อมูลที่พักปัจจุบันเพื่อนำระยะทางไปคำนวณค่าใช้จ่ายในการเดินทางจริง สำหรับนำไปพิจารณาสวัสดิการค่าน้ำมันช่วยเหลือต่อไปครับ
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+            <div class="bg-slate-100/70 px-5 py-3 border-b border-slate-200">
+                <h2 class="font-semibold text-slate-700 text-sm flex items-center gap-2">
+                    <span>📝</span> กรอกข้อมูลประจำตัวและที่พัก
+                </h2>
+            </div>
+
+            <form id="driverForm" class="p-5 space-y-4">
+                
+                <!-- รหัสพนักงาน -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1" for="employee_id">
+                        รหัสพนักงาน <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="employee_id" name="employee_id" required
+                           placeholder="เช่น 65001 หรือ รหัสประจำตัว"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
+                </div>
+
+                <!-- ชื่อ-นามสกุล -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1" for="name">
+                        ชื่อ - นามสกุล <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="name" name="name" required
+                           placeholder="เช่น สมชาย ใจดี"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
+                </div>
+
+                <!-- เบอร์รถ -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1" for="vehicle_no">
+                        เบอร์รถ <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="vehicle_no" name="vehicle_no" required
+                           placeholder="เช่น เบอร์ 12"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
+                </div>
+
+                <!-- สาขาที่วิ่งงานปัจจุบัน -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1" for="branch_id">
+                        สาขาที่วิ่งงานปัจจุบัน <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <select id="branch_id" name="branch_id" required
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm bg-white appearance-none">
+                            <option value="">-- กำลังโหลดรายชื่อสาขา... --</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500">
+                            ▼
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ลิงก์แชร์จาก Google Maps -->
+                <div class="pt-2">
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-xs font-semibold text-slate-600" for="map_url">
+                            ลิงก์แชร์ตำแหน่งจาก Google Maps <span class="text-red-500">*</span>
+                        </label>
+                        <button type="button" id="btnHelpModal" class="text-xs text-blue-600 hover:text-blue-800 underline flex items-center gap-0.5">
+                            <span>❓</span> วิธีคัดลอกลิงก์
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="map_url" name="map_url" required
+                               placeholder="วางลิงก์ เช่น https://maps.app.goo.gl/... หรือพิกัด"
+                               class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition text-sm">
+                        <button type="button" id="btnCheckLink" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2.5 rounded-xl text-xs font-medium border border-slate-300 transition whitespace-nowrap">
+                            ตรวจสอบ
+                        </button>
+                    </div>
+
+                    <!-- Alternative Location Pickers -->
+                    <div class="mt-2.5 flex items-center justify-between text-xs gap-2 flex-wrap">
+                        <button type="button" id="btnUseGps" class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg border border-blue-200 transition">
+                            <span>📍</span> ดึงพิกัดจาก GPS ปัจจุบัน
+                        </button>
+                        <button type="button" id="btnOpenMapPicker" class="text-emerald-700 hover:text-emerald-900 font-medium flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1.5 rounded-lg border border-emerald-200 transition">
+                            <span>🗺️</span> จิ้มเลือกบนแผนที่
+                        </button>
+                    </div>
+
+                    <!-- Resolved Coords Preview Badge -->
+                    <div id="coordsBadge" class="hidden mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                ตรวจพบพิกัดสำเร็จ: <span id="coordsText" class="font-mono font-semibold"></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Map Preview / Interactive Picker -->
+                    <div id="miniMapContainer" class="hidden mt-3 rounded-xl overflow-hidden border border-slate-300 shadow-inner">
+                        <div class="bg-slate-100 px-3 py-1.5 text-[11px] text-slate-600 border-b border-slate-200 flex items-center justify-between">
+                            <span>👆 <strong>แตะ/คลิก</strong> หรือ <strong>ลากหมุด</strong> ไปยังที่พักของคุณ</span>
+                        </div>
+                        <div id="miniMap" class="w-full h-52"></div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-3">
+                    <button type="submit" id="btnSubmit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm disabled:opacity-50">
+                        <span id="btnSubmitText">บันทึกข้อมูลที่พัก</span>
+                        <div id="btnSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Result Card on Success -->
+        <div id="successCard" class="hidden mt-5 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 shadow-sm text-center">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
+                ✓
+            </div>
+            <h3 class="text-base font-bold text-slate-800">บันทึกข้อมูลเรียบร้อยแล้ว!</h3>
+            <p id="successDesc" class="text-xs text-slate-600 mt-1"></p>
+
+            <div class="mt-4 bg-white/80 backdrop-blur rounded-xl p-3 border border-emerald-100 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="p-1">
+                    <span class="text-slate-400 block text-[10px]">ขาไป (ที่พัก➔สาขา)</span>
+                    <span id="resDistanceInbound" class="font-bold text-blue-600 text-xs"></span>
+                </div>
+                <div class="p-1 border-x border-slate-200">
+                    <span class="text-slate-400 block text-[10px]">ขากลับ (สาขา➔ที่พัก)</span>
+                    <span id="resDistanceOutbound" class="font-bold text-blue-600 text-xs"></span>
+                </div>
+                <div class="p-1 bg-emerald-50/50 rounded-lg">
+                    <span class="text-emerald-700 font-semibold block text-[10px]">รวมไป-กลับจริง</span>
+                    <span id="resDistanceRoundTrip" class="font-extrabold text-emerald-600 text-sm"></span>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-slate-500 mt-4">
+                * ข้อมูลของคุณได้รับการบันทึกเข้าสู่ระบบเรียบร้อย สามารถปิดหน้านี้ได้เลยครับ
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Modal Help: How to share link from Google Maps -->
+    <div id="helpModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl relative animate-in fade-in zoom-in duration-150">
+            <button id="btnCloseHelp" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg">
+                ✕
+            </button>
+            <h3 class="font-bold text-slate-800 text-base mb-3 flex items-center gap-2">
+                <span>📍</span> วิธีคัดลอกลิงก์จาก Google Maps
+            </h3>
+            <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                <div class="flex gap-2.5 items-start">
+                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center shrink-0">1</span>
+                    <p>เปิดแอป <strong>Google Maps</strong> ในมือถือของคุณ</p>
+                </div>
+                <div class="flex gap-2.5 items-start">
+                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center shrink-0">2</span>
+                    <p>แตะค้างที่ตำแหน่ง <strong>"ที่พักปัจจุบันของคุณ"</strong> จนมีหมุดสีแดงขึ้นมา</p>
+                </div>
+                <div class="flex gap-2.5 items-start">
+                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center shrink-0">3</span>
+                    <p>กดปุ่ม <strong>"แชร์" (Share)</strong> ด้านล่าง แล้วเลือก <strong>"คัดลอกลิงก์" (Copy link)</strong></p>
+                </div>
+                <div class="flex gap-2.5 items-start">
+                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center shrink-0">4</span>
+                    <p>นำลิงก์ที่ได้มาวางในช่อง <strong>"ลิงก์แชร์ตำแหน่ง"</strong> ในหน้านี้ได้ทันที</p>
+                </div>
+            </div>
+            <button id="btnGotIt" class="mt-5 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-xl text-xs transition">
+                เข้าใจแล้ว
+            </button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/js/submit.js"></script>
+</body>
+</html>

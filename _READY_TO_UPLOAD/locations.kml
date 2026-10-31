@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>MWaterDelivery</name>
+    <description/>
+    <Style id="icon-1565-0F9D58-normal">
+      <IconStyle>
+        <color>ff589d0f</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1565-0F9D58-highlight">
+      <IconStyle>
+        <color>ff589d0f</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1565-0F9D58">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1565-0F9D58-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1565-0F9D58-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1565-E65100-normal">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1565-E65100-highlight">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1565-E65100">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1565-E65100-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1565-E65100-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1603-E65100-normal">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1603-E65100-highlight">
+      <IconStyle>
+        <color>ff0051e6</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1603-E65100">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1603-E65100-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1603-E65100-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1603-F9A825-normal">
+      <IconStyle>
+        <color>ff25a8f9</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1603-F9A825-highlight">
+      <IconStyle>
+        <color>ff25a8f9</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1603-F9A825">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1603-F9A825-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1603-F9A825-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1603-FF5252-normal">
+      <IconStyle>
+        <color>ff5252ff</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1603-FF5252-highlight">
+      <IconStyle>
+        <color>ff5252ff</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1603-FF5252">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1603-FF5252-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1603-FF5252-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1859-01579B-normal">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1859-01579B-highlight">
+      <IconStyle>
+        <color>ff9b5701</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1859-01579B">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1859-01579B-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1859-01579B-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1859-0F9D58-normal">
+      <IconStyle>
+        <color>ff589d0f</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1859-0F9D58-highlight">
+      <IconStyle>
+        <color>ff589d0f</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1859-0F9D58">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1859-0F9D58-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1859-0F9D58-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="icon-1859-3949AB-normal">
+      <IconStyle>
+        <color>ffab4939</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>0</scale>
+      </LabelStyle>
+    </Style>
+    <Style id="icon-1859-3949AB-highlight">
+      <IconStyle>
+        <color>ffab4939</color>
+        <scale>1</scale>
+        <Icon>
+          <href>https://www.gstatic.com/mapspro/images/stock/503-wht-blank_maps.png</href>
+        </Icon>
+      </IconStyle>
+      <LabelStyle>
+        <scale>1</scale>
+      </LabelStyle>
+    </Style>
+    <StyleMap id="icon-1859-3949AB">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#icon-1859-3949AB-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#icon-1859-3949AB-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>คลังสินค้า</name>
+      <Placemark>
+        <name>สำนักงานขายโฮมเพลส</name>
+        <description><![CDATA[283/50 อาคารโฮมเพลสออฟฟิศบิลดิ้ง<br>ชั้น 11 ซอยสุขุมวิท 55 (ทองหล่อ 13)<br>ถนนสุขุมวิท แขวงคลองตันเหนือ<br>เขตวัฒนา กรุงเทพฯ 10110<br><br>https://goo.gl/maps/XjN3KuurkwPgqxtK9]]></description>
+        <styleUrl>#icon-1603-FF5252</styleUrl>
+        <Point>
+          <coordinates>
+            100.581833940427,13.73400500824,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สำนักงานบัญชียิ่งโอฬาร</name>
+        <description><![CDATA[244/365 ซ.วิภาวดีรังสิต 43 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กทม.10210<br><br>https://goo.gl/maps/4awA2AiKYtS5TRZA9]]></description>
+        <styleUrl>#icon-1603-E65100</styleUrl>
+        <Point>
+          <coordinates>
+            100.614920839448,13.9454145125278,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>หจก. มิลด์โก้ เทรดดิ้ง สำนักงานใหญ่</name>
+        <description><![CDATA[7/24 ซอยสุวรรณสวัสดิ์ ถนนพระราม 4 แขวงทุ่งมหาเมฆ เขตสาทร กรุงเทพมหานคร 10120<br>13.72308, 100.55003<br>https://maps.app.goo.gl/gMAhYDrgxRuvUdqm9]]></description>
+        <styleUrl>#icon-1603-F9A825</styleUrl>
+        <Point>
+          <coordinates>
+            100.550036,13.7230811,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาบางพลี</name>
+        <description><![CDATA[9/18 หมู่ที่ 3 ถ.บางนา-ตราด กม.23 (ขาเข้า)<br>ต.บางเสาธง อ.บางเสาธง จ.สมุทรปราการ 10540<br>https://goo.gl/maps/YvigfZviSUDuk6LK8]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.802579,13.593818,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาสุขุมวิท 50</name>
+        <description><![CDATA[2026 ถนนริมทางรถไฟสายปากน้ำ แขวงพระโขนง เขตวัฒนา กรุงเทพมหานคร 10110<br><br>https://goo.gl/maps/8soDtaBfUcmYaZ7R8]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.58795718026,13.6994906324725,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขารามอินทรา</name>
+        <description><![CDATA[เลขที่ 450/5 ซอย เจริญพัฒนา 17 แขวง บางชัน เขตคลองสามวา กรุงเทพมหานคร 10510<br><br>https://goo.gl/maps/ic2tbo97EQ3khDqy6]]></description>
+        <styleUrl>#icon-1859-01579B</styleUrl>
+        <Point>
+          <coordinates>
+            100.71444197672,13.8326441733722,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาราษฎร์บูรณะ</name>
+        <description><![CDATA[185 ถนนราษฏร์บูรณะ แขวงบางปะกอก เขตราษฏร์บูรณะ กรุงเทพมหานคร 10140<br><br>https://maps.app.goo.gl/7SevJpd6by6bUu8t6]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.496486,13.684728,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาสำโรง</name>
+        <description><![CDATA[2070 หมู่ 1 ถนนรถไฟสายเก่า ต.สำโรงเหนือ อ.เมืองสมุทรปราการ จ.สมุทรปราการ<br><br>https://goo.gl/maps/rg8uS7wqFPAvLZa6A]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.593597,13.660898,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขากรุงเทพกรีฑา</name>
+        <description><![CDATA[เลขที่ 43 ซ.กรุงเทพกรีฑา 19 แขวงสะพานสูง เขตสะพานสูง กรุงเทพฯ<br><br>https://goo.gl/maps/DFPU5mue9rabWRSy5]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.673082,13.743939,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาบางบัวทอง</name>
+        <description><![CDATA[132 3 ตำบล พิมลราช อำเภอบางบัวทอง นนทบุรี 11110<br><br>https://goo.gl/maps/FRbbN8G4jTPwXJVYA]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.407168902928,13.9098915947068,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาพระราม 2</name>
+        <description><![CDATA[44/81 ซ.พรหมรังษี หมู่ 4 ถ.พระราม 2 แขวงแสมดำ เขตบางขุนเทียน กรุงเทพมหานคร 10150<br><br>https://goo.gl/maps/rpAJGK1UA9XjsTAg8]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.384059,13.612777,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาปทุมธานี</name>
+        <description><![CDATA[เลขที่ 9/37 รังสิตพรอสเพอร์ ถนนพหลโยธิน ( ขาออก) ต.คลองหนึ่ง อ.คลองหลวง จ.ปทุมธานี 12120<br><br>https://goo.gl/maps/PsUeGEEx9cEeq6QN8]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.606488,14.03735,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาบุคคโล</name>
+        <description><![CDATA[703/1 ถนนเจริญนคร แขวงบุคคโล เขตธนบุรี กรุงเทพมหานคร 10600<br><br>https://goo.gl/maps/5Ges6objsqfzR8ba8]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.487882548376,13.6988476633169,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาพระราม 3</name>
+        <description><![CDATA[บริษัท เล่าฮั่วเชียง จำกัด 31/1, 31/6, 31/7 ถนนพระราม 3 แขวงช่องนนทรี เขตยานนาวา กรุงเทพฯ 10120<br><br>https://goo.gl/maps/2RjuwHEVFkZtTVqu5]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.549038,13.684045,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาปากเกร็ด</name>
+        <description><![CDATA[6/2 หมู่ 5 ถ.สุขาประชาสรรค์ 2 ต.บางพูด อ.ปากเกร็ด จ.นนทบุรี 11120<br><br>https://goo.gl/maps/FBSSz9qR4ea6pVbn9]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.509275,13.937184,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขากิ่งแก้ว</name>
+        <description><![CDATA[777/3 หมู่ 7 ถ.บางพลี-ตำหรุ ต.บางพลีใหญ่ อ.บางพลี สมุทรปราการ 10540<br><br>https://goo.gl/maps/crgt3ZZRwKrZkZ548]]></description>
+        <styleUrl>#icon-1859-01579B</styleUrl>
+        <Point>
+          <coordinates>
+            100.700506,13.614945,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาพุทธมณฑลสาย 1</name>
+        <description><![CDATA[เลขที่ 178 ถ. พุทธมณฑลสาย 1 แขวงบางด้วน เขตภาษีเจริญ กรุงเทพฯ<br>https://maps.app.goo.gl/MsUM9PXH2s3dUx7FA<br><br>13.729450267741955, 100.42855535767023]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.42855535767,13.729450267742,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาประเวศ (น้ำดื่ม 18.9 ลิตร)</name>
+        <description><![CDATA[104/7 หมู่ 8 ถ.สุขาภิบาล 1 ซ.สุขุมวิท 103 แขวงประเวศ เขตประเวศ กรุงเทพมหานคร 10250<br><br>https://goo.gl/maps/WJxApyovJVFBy9eW9]]></description>
+        <styleUrl>#icon-1859-01579B</styleUrl>
+        <Point>
+          <coordinates>
+            100.688924,13.711612,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>สาขาประชาชื่น</name>
+        <description><![CDATA[1015/1 ถนนประชาชื่น แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพ 10800<br>https://maps.app.goo.gl/CxJ9qQeTctoQwgUh8]]></description>
+        <styleUrl>#icon-1859-3949AB</styleUrl>
+        <Point>
+          <coordinates>
+            100.538734071898,13.8374948117932,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>คลังประเวศ (น้ำขวด PET)</name>
+        <description><![CDATA[104/7 หมู่ 8 ถ.สุขาภิบาล 1 ซ.สุขุมวิท 103 แขวงประเวศ เขตประเวศ กรุงเทพมหานคร 10250<br><br>https://goo.gl/maps/681LHqFmUNTqiyu99]]></description>
+        <styleUrl>#icon-1859-0F9D58</styleUrl>
+        <Point>
+          <coordinates>
+            100.689051,13.71181,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>คลังแพรกษา</name>
+        <description><![CDATA[479 หมู่ 8 ถ.แพรกษา ต.ท้ายบ้าน อ.เมือง จ.สมุทรปราการ 10280<br>https://maps.app.goo.gl/3aoS2RiWMyKHkoUX6]]></description>
+        <styleUrl>#icon-1565-0F9D58</styleUrl>
+        <Point>
+          <coordinates>
+            100.625289266805,13.5861914880609,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>คลังหัวหมาก</name>
+        <description>https://maps.app.goo.gl/u5mSuhiEqMDtP4gp8</description>
+        <styleUrl>#icon-1565-0F9D58</styleUrl>
+        <Point>
+          <coordinates>
+            100.60466760089,13.7430832361557,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+    <Folder>
+      <name>โรงงาน</name>
+      <Placemark>
+        <name>โรงงานดอนเมือง</name>
+        <description><![CDATA[1 ซ.วิภาวดีรังสิต 41 แยก 1 ถนนวิภาวดีรังสิต แขวงสนามบิน เขตดอนเมือง กทม.10210<br><br>https://maps.app.goo.gl/eyhVrUbsFGgvRQyXA]]></description>
+        <styleUrl>#icon-1565-E65100</styleUrl>
+        <Point>
+          <coordinates>
+            100.612454912427,13.9501329205326,0
+          </coordinates>
+        </Point>
+      </Placemark>
+      <Placemark>
+        <name>โรงงานวังน้อย</name>
+        <description><![CDATA[เลขที่ 204 หมู่ที่ 3 ตำบลชะแมบ อำเภอวังน้อย จังหวัดพระนครศรีอยุธยา 13170<br><br>https://goo.gl/maps/AwYfcKaJFxagkwhL9]]></description>
+        <styleUrl>#icon-1565-E65100</styleUrl>
+        <Point>
+          <coordinates>
+            100.756608564418,14.2716006443564,0
+          </coordinates>
+        </Point>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

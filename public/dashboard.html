@@ -83,14 +83,26 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <!-- Auto-Refresh Status Badge (Fixed 5 Minutes) -->
+                    <div class="flex items-center gap-1.5 bg-slate-800/90 px-3 py-2 rounded-xl border border-slate-700 text-xs shadow-sm text-slate-300">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span class="font-medium text-slate-200">ดึงข้อมูลอัตโนมัติทุก 5 นาที</span>
+                    </div>
+
+                    <!-- Manual Refresh Button (Instant Sync) -->
+                    <button id="btnManualRefresh" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5 shadow-sm" title="กดเพื่อดึงข้อมูลล่าสุดจากเซิร์ฟเวอร์และ Google Sheets ทันที">
+                        <span id="refreshIcon" class="inline-block transition-transform duration-500">🔄</span>
+                        <span id="refreshBtnText" class="font-medium">รีเฟรชข้อมูล</span>
+                    </button>
+
                     <a href="/" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5">
                         <span>📱</span>
                         <span>เปิดฟอร์มพนักงาน</span>
                     </a>
                     <button id="btnExportExcel" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3.5 py-2 rounded-xl shadow transition flex items-center gap-1.5">
                         <span>📊</span>
-                        <span>ส่งออก Excel (.xlsx)</span>
+                        <span>ส่งออก Excel</span>
                     </button>
                     <button id="btnLogout" class="text-xs bg-slate-800 hover:bg-red-900 text-slate-300 hover:text-white px-2.5 py-2 rounded-xl border border-slate-700 transition" title="ออกจากระบบ">
                         🚪
@@ -309,9 +321,15 @@
         <!-- Submissions Table Section -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
-                <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                    <span>📋</span> ตารางข้อมูลรายบุคคล
-                </h2>
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <h2 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <span>📋</span> ตารางข้อมูลรายบุคคล
+                    </h2>
+                    <span id="lastUpdatedBadge" class="text-[11px] text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full font-mono flex items-center gap-1.5 border border-slate-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                        <span id="lastUpdatedText">อัปเดตล่าสุด: กำลังโหลด...</span>
+                    </span>
+                </div>
                 <div class="relative w-64">
                     <input type="text" id="searchTable" placeholder="ค้นหา ชื่อ, รหัส, เบอร์รถ..."
                            class="w-full text-xs px-3.5 py-2 pl-8 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none">

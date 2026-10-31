@@ -11,6 +11,13 @@ let activePolyline = null;
 let selectedVehicles = new Set();
 let availableVehicles = [];
 
+// Auto-refresh & map state
+let mapInitialFitDone = false;
+let autoRefreshTimer = null;
+const AUTO_REFRESH_INTERVAL_SEC = 300; // 5 minutes
+let countdownRemaining = AUTO_REFRESH_INTERVAL_SEC;
+let lastSyncTimeString = '';
+
 document.addEventListener('DOMContentLoaded', () => {
     checkAuth();
     initMap();
@@ -90,6 +97,7 @@ function initControls() {
     });
 
     document.getElementById('filterBranch').addEventListener('change', () => {
+        mapInitialFitDone = false;
         refreshData(true);
     });
 
@@ -323,6 +331,7 @@ function applyVehicleFilter() {
 async function loadDashboardData() {
     await loadBranches();
     await refreshData(true);
+    setupAutoRefresh();
 }
 
 async function loadBranches() {
@@ -347,7 +356,7 @@ async function loadBranches() {
     }
 }
 
-async function refreshData(updateVehicleList = false) {
+async function refreshData(updateVehicleList = false, isManual = false) {
     if (!token) return;
 
     const branchId = document.getElementById('filterBranch').value;
@@ -378,6 +387,11 @@ async function refreshData(updateVehicleList = false) {
         const data = await res.json();
         allSubmissions = data.submissions || [];
 
+        // Update last synced time string
+        const now = new Date();
+        lastSyncTimeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        updateLastUpdatedDisplay();
+
         if (updateVehicleList) {
             const seen = new Set();
             availableVehicles = [];
@@ -390,6 +404,19 @@ async function refreshData(updateVehicleList = false) {
             // By default, select all vehicles
             selectedVehicles = new Set(availableVehicles.map(v => v.vehicle_no));
             renderVehicleCheckboxes();
+        } else {
+            // Auto-detect any newly submitted vehicles and add them to view
+            let hasNewVehicles = false;
+            for (const s of allSubmissions) {
+                if (!availableVehicles.some(v => v.vehicle_no === s.vehicle_no)) {
+                    availableVehicles.push({ vehicle_no: s.vehicle_no, name: s.name });
+                    selectedVehicles.add(s.vehicle_no);
+                    hasNewVehicles = true;
+                }
+            }
+            if (hasNewVehicles) {
+                renderVehicleCheckboxes();
+            }
         }
 
         updateDeleteDropdown();
@@ -522,9 +549,155 @@ function renderMap(submissions) {
         bounds.push([s.home_latitude, s.home_longitude]);
     }
 
-    if (bounds.length > 0) {
+    if (bounds.length > 0 && !mapInitialFitDone) {
         map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+        mapInitialFitDone = true;
     }
+}
+
+function setupAutoRefresh() {
+    const refreshBtn = document.getElementById('btnManualRefresh');
+
+    if (refreshBtn) {
+        refreshBtn.onclick = async () => {
+            const icon = document.getElementById('refreshIcon');
+            const text = document.getElementById('refreshBtnText');
+            if (icon) icon.classList.add('animate-spin');
+            if (text) text.textContent = 'กำลังดึง...';
+            await refreshData(false, true);
+            setTimeout(() => {
+                if (icon) icon.classList.remove('animate-spin');
+                if (text) text.textContent = 'รีเฟรชข้อมูล';
+            }, 600);
+            resetCountdown();
+        };
+    }
+
+    startAutoRefreshLoop();
+}
+
+function startAutoRefreshLoop() {
+    if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+
+    countdownRemaining = AUTO_REFRESH_INTERVAL_SEC;
+    updateLastUpdatedDisplay();
+
+    autoRefreshTimer = setInterval(() => {
+        countdownRemaining--;
+        if (countdownRemaining <= 0) {
+            countdownRemaining = AUTO_REFRESH_INTERVAL_SEC;
+            refreshData(false, false);
+        }
+        updateLastUpdatedDisplay();
+    }, 1000);
+}
+
+function resetCountdown() {
+    countdownRemaining = AUTO_REFRESH_INTERVAL_SEC;
+    updateLastUpdatedDisplay();
+}
+
+function formatCountdown(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s} นาที`;
+}
+
+function updateLastUpdatedDisplay() {
+    const badge = document.getElementById('lastUpdatedText');
+    if (!badge) return;
+    if (!lastSyncTimeString) {
+        badge.textContent = 'กำลังโหลด...';
+        return;
+    }
+    badge.textContent = `อัปเดตล่าสุด: ${lastSyncTimeString} (ดึงใหม่อัตโนมัติในอีก ${formatCountdown(countdownRemaining)})`;
+}
+
+function formatNameTwoLines(name) {
+    if (!name) return '<span class="text-slate-300">-</span>';
+    const trimmed = String(name).trim();
+    const spaceIdx = trimmed.search(/\s+/);
+    if (spaceIdx === -1) {
+        return `<div class="font-medium text-slate-800 whitespace-nowrap">${trimmed}</div>`;
+    }
+    const firstName = trimmed.substring(0, spaceIdx).trim();
+    const lastName = trimmed.substring(spaceIdx).trim();
+    return `
+        <div class="leading-tight">
+            <div class="font-semibold text-slate-800 whitespace-nowrap">${firstName}</div>
+            <div class="text-xs text-slate-500 whitespace-nowrap mt-0.5">${lastName}</div>
+        </div>
+    `;
+}
+
+function formatAddressTwoLines(s) {
+    if (!s.full_address && !s.address_detail) return '<span class="text-slate-300">-</span>';
+    
+    let raw = (s.full_address || s.address_detail || '').trim();
+    let line1 = '';
+    let line2 = '';
+
+    if (s.address_detail && (s.subdistrict || s.district || s.province)) {
+        line1 = s.address_detail.trim();
+        const parts = [
+            s.subdistrict ? (s.subdistrict.startsWith('ต.') || s.subdistrict.startsWith('แขวง') ? s.subdistrict : `ต.${s.subdistrict}`) : '',
+            s.district ? (s.district.startsWith('อ.') || s.district.startsWith('เขต') ? s.district : `อ.${s.district}`) : '',
+            s.province ? (s.province.startsWith('จ.') ? s.province : `จ.${s.province}`) : '',
+            s.postal_code || ''
+        ].filter(Boolean);
+        line2 = parts.join(' ');
+    } else {
+        const subMatch = raw.match(/\s+(ต\.|แขวง)/);
+        if (subMatch && subMatch.index > 0) {
+            line1 = raw.substring(0, subMatch.index).trim();
+            line2 = raw.substring(subMatch.index).trim();
+        } else if (raw.startsWith('ต.') || raw.startsWith('แขวง')) {
+            const provMatch = raw.match(/\s+จ\./);
+            if (provMatch && provMatch.index > 0) {
+                line1 = raw.substring(0, provMatch.index).trim();
+                line2 = raw.substring(provMatch.index).trim();
+            } else {
+                const words = raw.split(/\s+/);
+                if (words.length > 2) {
+                    const mid = Math.ceil(words.length / 2);
+                    line1 = words.slice(0, mid).join(' ');
+                    line2 = words.slice(mid).join(' ');
+                } else {
+                    line1 = raw;
+                }
+            }
+        } else {
+            const provMatch = raw.match(/\s+จ\./);
+            if (provMatch && provMatch.index > 0) {
+                line1 = raw.substring(0, provMatch.index).trim();
+                line2 = raw.substring(provMatch.index).trim();
+            } else {
+                const words = raw.split(/\s+/);
+                if (words.length >= 3) {
+                    const mid = Math.ceil(words.length / 2);
+                    line1 = words.slice(0, mid).join(' ');
+                    line2 = words.slice(mid).join(' ');
+                } else {
+                    line1 = raw;
+                }
+            }
+        }
+    }
+
+    if (!line2) {
+        return `
+            <div class="min-w-[190px] max-w-[320px] text-xs leading-snug" title="${raw}">
+                <div class="text-slate-700">🏠 ${line1}</div>
+            </div>
+        `;
+    }
+
+    return `
+        <div class="min-w-[190px] max-w-[320px] text-xs leading-snug" title="${raw}">
+            <div class="font-medium text-slate-800">🏠 ${line1}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">${line2}</div>
+        </div>
+    `;
 }
 
 function renderTable(submissions) {
@@ -547,17 +720,16 @@ function renderTable(submissions) {
             ? `https://www.google.com/maps?q=${s.home_latitude},${s.home_longitude}`
             : (s.map_url && s.map_url.startsWith('http') ? s.map_url : `https://www.google.com/maps?q=${encodeURIComponent(s.map_url || '')}`);
 
-        const addressDisplay = s.full_address 
-            ? `<div class="max-w-[220px] truncate text-slate-700 font-medium" title="${s.full_address}">🏠 ${s.full_address}</div>`
-            : (s.address_detail ? `<div class="max-w-[220px] truncate text-slate-600" title="${s.address_detail}">🏠 ${s.address_detail}</div>` : `<span class="text-slate-300">-</span>`);
+        const addressDisplay = formatAddressTwoLines(s);
+        const nameDisplay = formatNameTwoLines(s.name);
 
         return `
             <tr class="hover:bg-slate-50 transition border-b border-slate-100 ${isOver ? 'bg-red-50/20' : ''}">
-                <td class="py-3 px-4 font-mono font-medium text-slate-700">${s.employee_id}</td>
-                <td class="py-3 px-4 font-medium text-slate-800">${s.name}</td>
-                <td class="py-3 px-4 font-semibold text-slate-700">${s.vehicle_no}</td>
+                <td class="py-3 px-4 font-mono font-medium text-slate-700 whitespace-nowrap">${s.employee_id}</td>
+                <td class="py-3 px-4">${nameDisplay}</td>
+                <td class="py-3 px-4 font-semibold text-slate-700 whitespace-nowrap">${s.vehicle_no}</td>
                 <td class="py-3 px-4 text-slate-600">${s.branch_name}</td>
-                <td class="py-3 px-4 text-slate-600">${addressDisplay}</td>
+                <td class="py-3 px-4">${addressDisplay}</td>
                 <td class="py-3 px-4 text-right font-mono font-semibold">${distDisplay}</td>
                 <td class="py-3 px-4 text-right font-mono font-bold ${isOver ? 'text-red-600' : 'text-emerald-600'}">
                     ${s.active_cost} <span class="text-[10px] text-slate-400 font-normal">บ. (${modeLabel})</span>
@@ -597,7 +769,9 @@ function filterTableOnly() {
         s.employee_id.toLowerCase().includes(term) ||
         s.name.toLowerCase().includes(term) ||
         s.vehicle_no.toLowerCase().includes(term) ||
-        s.branch_name.toLowerCase().includes(term)
+        s.branch_name.toLowerCase().includes(term) ||
+        (s.full_address && s.full_address.toLowerCase().includes(term)) ||
+        (s.address_detail && s.address_detail.toLowerCase().includes(term))
     );
     renderTable(filtered);
 }

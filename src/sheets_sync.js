@@ -62,6 +62,16 @@ async function syncFromGoogleSheets(db, force = false) {
             const empId = String(row.employee_id).trim();
             activeEmpIds.add(empId);
 
+            // Safeguard: If Google Sheet column is missing or empty, preserve existing address from SQLite
+            const existing = db.get('SELECT address_detail, postal_code, subdistrict, district, province, full_address FROM submissions WHERE employee_id = ?', [empId]);
+
+            const addrDetail = row.address_detail ? String(row.address_detail).trim() : (existing && existing.address_detail ? existing.address_detail : '');
+            const postCode = row.postal_code ? String(row.postal_code).trim() : (existing && existing.postal_code ? existing.postal_code : '');
+            const subDist = row.subdistrict ? String(row.subdistrict).trim() : (existing && existing.subdistrict ? existing.subdistrict : '');
+            const dist = row.district ? String(row.district).trim() : (existing && existing.district ? existing.district : '');
+            const prov = row.province ? String(row.province).trim() : (existing && existing.province ? existing.province : '');
+            const fullAddr = (row.full_address || row.address) ? String(row.full_address || row.address).trim() : (existing && existing.full_address ? existing.full_address : '');
+
             upsertStmt.run(
                 empId,
                 String(row.name || '').trim(),
@@ -73,15 +83,40 @@ async function syncFromGoogleSheets(db, force = false) {
                 parseFloat(row.distance_km) || 0,
                 row.distance_return_km != null ? parseFloat(row.distance_return_km) : null,
                 row.distance_round_trip_km != null ? parseFloat(row.distance_round_trip_km) : null,
-                String(row.address_detail || '').trim(),
-                String(row.postal_code || '').trim(),
-                String(row.subdistrict || '').trim(),
-                String(row.district || '').trim(),
-                String(row.province || '').trim(),
-                String(row.full_address || '').trim(),
+                addrDetail,
+                postCode,
+                subDist,
+                dist,
+                prov,
+                fullAddr,
                 row.created_at || new Date().toISOString(),
                 row.updated_at || new Date().toISOString()
             );
+
+            // If SQLite had full_address but Sheet didn't have it, push back to Sheet!
+            if (fullAddr && (!row.full_address && !row.address)) {
+                pushToGoogleSheets({
+                    employee_id: empId,
+                    name: String(row.name || '').trim(),
+                    vehicle_no: String(row.vehicle_no || '').trim(),
+                    branch_id: parseInt(row.branch_id) || 1,
+                    branch_name: String(row.branch_name || '').trim(),
+                    map_url: String(row.map_url || '').trim(),
+                    home_latitude: parseFloat(row.home_latitude) || 0,
+                    home_longitude: parseFloat(row.home_longitude) || 0,
+                    distance_km: parseFloat(row.distance_km) || 0,
+                    distance_return_km: row.distance_return_km != null ? parseFloat(row.distance_return_km) : null,
+                    distance_round_trip_km: row.distance_round_trip_km != null ? parseFloat(row.distance_round_trip_km) : null,
+                    address_detail: addrDetail,
+                    postal_code: postCode,
+                    subdistrict: subDist,
+                    district: dist,
+                    province: prov,
+                    full_address: fullAddr,
+                    created_at: row.created_at,
+                    updated_at: row.updated_at
+                }).catch(e => console.error('[GoogleSheets] Auto-backfill error:', e.message));
+            }
         }
 
         // If Google Sheet has records, delete any local submissions that are no longer in Google Sheets

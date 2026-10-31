@@ -515,6 +515,16 @@ if (require.main === module) {
         await seedBranches(db, kmlPath);
         // Initial sync from Google Sheets if configured
         await syncFromGoogleSheets(db, true);
+
+        // Periodic background sync from Google Sheets every 5 minutes
+        setInterval(async () => {
+            try {
+                await syncFromGoogleSheets(db, false);
+            } catch (e) {
+                console.warn('[SyncTimer] Periodic Google Sheets sync error:', e.message);
+            }
+        }, 5 * 60 * 1000);
+
         const app = createApp(db);
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`=================================================`);
